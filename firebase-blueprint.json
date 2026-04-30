@@ -1,0 +1,138 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Basic user profile information",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "school": { "type": "string" },
+        "district": { "type": "string" },
+        "medium": { "type": "string", "enum": ["Kannada", "English"] },
+        "examDate": { "type": "string", "format": "date" },
+        "language": { "type": "string", "enum": ["Kannada", "English"] },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "school", "district", "medium", "examDate", "language", "createdAt"]
+    },
+    "UserProgress": {
+      "title": "User Progress",
+      "description": "Progress tracking for a subject and chapter",
+      "type": "object",
+      "properties": {
+        "completionPercent": { "type": "number" },
+        "lastAttempted": { "type": "string", "format": "date-time" },
+        "totalQuizzesTaken": { "type": "number" },
+        "avgScore": { "type": "number" },
+        "masteryLevel": { "type": "string", "enum": ["Beginner", "Developing", "Proficient", "Master"] }
+      }
+    },
+    "QuizHistory": {
+      "title": "Quiz History",
+      "description": "Historical record of a quiz session",
+      "type": "object",
+      "properties": {
+        "subject": { "type": "string" },
+        "chapter": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "score": { "type": "number" },
+        "totalQ": { "type": "number" },
+        "timeTaken": { "type": "number" },
+        "wrongQuestions": { "type": "array", "items": { "type": "string" } },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] }
+      }
+    },
+    "StudyPlan": {
+      "title": "Study Plan",
+      "description": "Personalised study plan container",
+      "type": "object",
+      "properties": {
+        "currentPlan": { "type": "object" },
+        "planGeneratedAt": { "type": "string", "format": "date-time" },
+        "daysRemaining": { "type": "number" },
+        "completedDays": { "type": "array", "items": { "type": "number" } }
+      }
+    },
+    "Streaks": {
+      "title": "User Streaks",
+      "description": "Gamification streak data",
+      "type": "object",
+      "properties": {
+        "currentStreak": { "type": "number" },
+        "longestStreak": { "type": "number" },
+        "lastActiveDate": { "type": "string", "format": "date" },
+        "totalDaysActive": { "type": "number" }
+      }
+    },
+    "Badge": {
+      "title": "Earned Badge",
+      "description": "Information about an earned achievement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "earnedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Bookmark": {
+      "title": "Bookmarked Question",
+      "description": "Saved questions for revision",
+      "type": "object",
+      "properties": {
+        "qId": { "type": "string" },
+        "subject": { "type": "string" },
+        "chapter": { "type": "string" },
+        "savedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "StudyResource": {
+      "title": "Study Resource",
+      "description": "Metadata for PDF notes or PYQs",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["notes", "pyq"] },
+        "subject": { "type": "string" },
+        "url": { "type": "string" },
+        "size": { "type": "string" },
+        "year": { "type": "string" }
+      },
+      "required": ["title", "type", "subject", "url"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}/profile": {
+      "schema": "UserProfile",
+      "description": "Private user profile document"
+    },
+    "/users/{uid}/progress/{subjectId}": {
+      "schema": "UserProgress",
+      "description": "Progress per subject and chapter (composite ID: subject_chapter)"
+    },
+    "/users/{uid}/quizHistory/{sessionId}": {
+      "schema": "QuizHistory",
+      "description": "Session history"
+    },
+    "/users/{uid}/studyPlan/current": {
+      "schema": "StudyPlan",
+      "description": "Current active study plan"
+    },
+    "/users/{uid}/streaks/stats": {
+      "schema": "Streaks",
+      "description": "Streak statistics"
+    },
+    "/users/{uid}/badges/{badgeId}": {
+      "schema": "Badge",
+      "description": "Badges earned by user"
+    },
+    "/users/{uid}/bookmarks/{bookmarkId}": {
+      "schema": "Bookmark",
+      "description": "User bookmarks"
+    },
+    "/resources/{resourceId}": {
+      "schema": "StudyResource",
+      "description": "Global study materials (PDFs)"
+    }
+  }
+}

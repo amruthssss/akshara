@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Study Resources
+    match /resources/{document=**} {
+      allow read: if true;
+      allow write: if false; 
+    }
+
+    // User Profile
+    match /users/{userId}/profile/data {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && 
+        request.resource.data.keys().hasAll(['name', 'school', 'district', 'medium', 'examDate', 'language', 'createdAt']) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() <= 100;
+    }
+
+    // User Progress
+    match /users/{userId}/progress/{subjectId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+
+    // Quiz History
+    match /users/{userId}/quizHistory/{sessionId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(sessionId);
+    }
+
+    // Study Plan
+    match /users/{userId}/studyPlan/current {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+
+    // Streaks
+    match /users/{userId}/streaks/stats {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+
+    // Badges
+    match /users/{userId}/badges/{badgeId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+
+    // Bookmarks
+    match /users/{userId}/bookmarks/{bookmarkId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+
+  }
+}
