@@ -5,9 +5,12 @@ import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ArrowLeft, Target, TrendingUp, Award, Zap, AlertCircle } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export function StrengthMap({ onBack }: { onBack: () => void }) {
   const { user, profile } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
 
@@ -44,152 +47,181 @@ export function StrengthMap({ onBack }: { onBack: () => void }) {
   }, [user]);
 
   if (loading) return (
-    <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+    <div className={`h-full flex flex-col items-center justify-center p-12 text-center rounded-[3rem] ${
+      isDark ? 'bg-[#121212] border border-white/5' : 'bg-white'
+    }`}>
       <motion.div 
         animate={{ 
           scale: [1, 1.1, 1],
           opacity: [0.5, 1, 0.5]
         }} 
         transition={{ repeat: Infinity, duration: 2 }} 
-        className="mb-8 p-6 bg-blue-50 rounded-full"
+        className={`mb-10 p-8 rounded-full ${isDark ? 'bg-white/5' : 'bg-blue-50'}`}
       >
-        <TrendingUp size={48} className="text-blue-600" />
+        <TrendingUp size={64} className={isDark ? 'text-[#D9FF00]' : 'text-blue-600'} />
       </motion.div>
-      <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">Computing Your Mastery...</h2>
-      <p className="text-slate-500 font-medium mt-2">Aggregating SSLC performance data</p>
+      <h2 className={`text-4xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Computing Your Mastery...</h2>
+      <p className="text-slate-500 font-medium text-lg mt-4">Aggregating SSLC performance data</p>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center gap-6">
-        <button onClick={onBack} className="p-4 bg-white hover:bg-slate-50 rounded-2xl transition-all shadow-sm border border-slate-100 active:scale-90">
-          <ArrowLeft size={24} className="text-slate-900" />
-        </button>
-        <div>
-          <h1 className="text-4xl font-black text-[#0F172A] tracking-tighter">Performance Engine</h1>
-          <p className="text-slate-500 font-medium">Real-time board readiness metrics</p>
+    <div className="app-container space-y-12 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="space-y-4">
+          <h1 className={`app-heading ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Performance Engine</h1>
+          <p className="app-subheading max-w-lg">Advanced insights into your Board preparedness based on recent quiz data.</p>
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Radar Chart Card */}
-        <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-slate-100 flex flex-col items-center">
-            <h2 className="text-xl font-black text-[#0F172A] mb-10 text-left w-full tracking-tight">Subject Matrix</h2>
-            <div className="w-full h-[400px]">
+        <div className={`p-10 md:p-14 rounded-[3.5rem] shadow-2xl border flex flex-col items-center transition-all ${
+          isDark ? 'bg-[#121212] border-white/5 shadow-black/40' : 'bg-white border-slate-100 shadow-blue-900/5'
+        }`}>
+            <h2 className={`text-2xl font-black mb-12 text-left w-full tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Subject Matrix</h2>
+            <div className="w-full h-[450px]">
                 <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data.radarData}>
-                        <PolarGrid stroke="#F1F5F9" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748B', fontSize: 11, fontWeight: 900 }} />
+                        <PolarGrid stroke={isDark ? '#333' : '#F1F5F9'} />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: isDark ? '#94A3B8' : '#64748B', fontSize: 13, fontWeight: 900 }} />
                         <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                         <Radar
                             name="Mastery"
                             dataKey="A"
-                            stroke="#2563EB"
-                            strokeWidth={3}
-                            fill="#2563EB"
-                            fillOpacity={0.15}
+                            stroke={isDark ? '#D9FF00' : '#2563EB'}
+                            strokeWidth={4}
+                            fill={isDark ? '#D9FF00' : '#2563EB'}
+                            fillOpacity={isDark ? 0.2 : 0.1}
                         />
                     </RadarChart>
                 </ResponsiveContainer>
             </div>
-            <div className="grid grid-cols-2 gap-6 w-full mt-8">
-                <div className="p-6 bg-green-50/50 rounded-3xl text-center border border-green-100">
-                    <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mb-2">Primary Strength</p>
-                    <p className="font-black text-slate-900 text-lg">Social Science</p>
+            <div className="grid grid-cols-2 gap-8 w-full mt-10">
+                <div className={`p-8 rounded-[2.5rem] text-center border ${
+                  isDark ? 'bg-white/5 border-emerald-500/10' : 'bg-emerald-50/50 border-emerald-100'
+                }`}>
+                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-3">Primary Strength</p>
+                    <p className={`font-black text-xl ${isDark ? 'text-white' : 'text-slate-900'}`}>Social Science</p>
                 </div>
-                <div className="p-6 bg-red-50/50 rounded-3xl text-center border border-red-100">
-                    <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-2">Growth Area</p>
-                    <p className="font-black text-slate-900 text-lg">English</p>
+                <div className={`p-8 rounded-[2.5rem] text-center border ${
+                  isDark ? 'bg-white/5 border-rose-500/10' : 'bg-rose-50/50 border-rose-100'
+                }`}>
+                    <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] mb-3">Growth Area</p>
+                    <p className={`font-black text-xl ${isDark ? 'text-white' : 'text-slate-900'}`}>English</p>
                 </div>
             </div>
         </div>
 
         {/* Prediction & Insights */}
-        <div className="space-y-8">
-            <div className="bg-[#0F172A] text-white p-10 rounded-[3rem] shadow-2xl shadow-slate-900/40 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-blue-600/20 transition-all duration-1000" />
+        <div className="space-y-10">
+            <div className={`p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden group transition-all duration-700 ${
+              isDark ? 'bg-white text-black' : 'bg-[#0F172A] text-white shadow-slate-900/40'
+            }`}>
+                <div className={`absolute top-0 right-0 w-80 h-80 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl transition-all duration-1000 ${
+                  isDark ? 'bg-black/5' : 'bg-blue-600/10 group-hover:bg-blue-600/20'
+                }`} />
                 <div className="relative z-10">
-                    <h3 className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-4">Board Prediction v1.2</h3>
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-7xl font-black tracking-tighter">74</span>
-                        <span className="text-2xl font-black text-slate-500 tracking-tighter">/ 80</span>
+                    <h3 className={`text-xs font-black uppercase tracking-[0.3em] mb-6 ${isDark ? 'text-slate-500' : 'text-blue-400'}`}>Board Prediction v1.2</h3>
+                    <div className="flex items-baseline gap-4">
+                        <span className="text-8xl font-black tracking-tighter">74</span>
+                        <span className={`text-3xl font-black tracking-tighter ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>/ 80</span>
                     </div>
-                    <div className="flex items-center gap-2 text-green-400 text-sm font-black mt-4">
-                        <TrendingUp size={18} /> 
+                    <div className={`flex items-center gap-3 text-sm font-black mt-8 ${isDark ? 'text-emerald-600' : 'text-emerald-400'}`}>
+                        <TrendingUp size={22} /> 
                         <span>Surpassing {profile?.district || 'State'} average by 12%</span>
                     </div>
                 </div>
-                <div className="absolute bottom-8 right-8 w-20 h-20 rounded-[2rem] border-4 border-blue-500/30 flex items-center justify-center text-3xl font-black bg-blue-500/10 rotate-12">
+                <div className={`absolute bottom-10 right-10 w-24 h-24 rounded-[2rem] border-8 flex items-center justify-center text-4xl font-black rotate-12 transition-all group-hover:rotate-0 duration-500 ${
+                  isDark ? 'border-black/5 bg-black/5 text-black' : 'border-white/10 bg-white/5 text-white'
+                }`}>
                     A+
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
-                        <Zap size={24} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-app">
+                <div className={`p-8 rounded-[2.5rem] border shadow-sm ${
+                  isDark ? 'bg-[#121212] border-white/5' : 'bg-white border-slate-100'
+                }`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 shadow-inner ${
+                      isDark ? 'bg-white/5 text-orange-500' : 'bg-orange-50 text-orange-600'
+                    }`}>
+                        <Zap size={28} />
                     </div>
-                    <h4 className="text-[#0F172A] font-black mb-2 text-lg tracking-tight">Momentum Key</h4>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed">Solving speed is up by 14s per question. High board potential detected.</p>
+                    <h4 className={`font-black mb-3 text-xl tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Momentum Key</h4>
+                    <p className="text-base text-slate-500 font-medium leading-relaxed">Solving speed is up by 14s. High board potential detected.</p>
                 </div>
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <div className="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
-                        <AlertCircle size={24} />
+                <div className={`p-8 rounded-[2.5rem] border shadow-sm ${
+                  isDark ? 'bg-[#121212] border-white/5' : 'bg-white border-slate-100'
+                }`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 shadow-inner ${
+                      isDark ? 'bg-white/5 text-rose-500' : 'bg-rose-50 text-rose-600'
+                    }`}>
+                        <AlertCircle size={28} />
                     </div>
-                    <h4 className="text-[#0F172A] font-black mb-2 text-lg tracking-tight">Risk Mitigation</h4>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed">English Poetry recall is below 60%. Schedule a dedicated revision soon.</p>
+                    <h4 className={`font-black mb-3 text-xl tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Risk Area</h4>
+                    <p className="text-base text-slate-500 font-medium leading-relaxed">English Poetry recall is below 60%. Schedule a dedicated revision soon.</p>
                 </div>
             </div>
 
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-black text-[#0F172A] text-xl tracking-tight">Board Readiness</h3>
-                    <Award className="text-blue-600" size={24} />
+            <div className={`p-10 rounded-[3.5rem] border shadow-sm ${
+              isDark ? 'bg-[#121212] border-white/5' : 'bg-white border-slate-100'
+            }`}>
+                <div className="flex justify-between items-center mb-8">
+                    <h3 className={`font-black text-xl tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Board Readiness</h3>
+                    <Award className={isDark ? 'text-[#D9FF00]' : 'text-blue-600'} size={28} />
                 </div>
-                <div className="w-full h-4 bg-slate-50 rounded-full overflow-hidden mb-6 border border-slate-100 shadow-inner">
+                <div className={`w-full h-5 rounded-full overflow-hidden mb-8 shadow-inner ${isDark ? 'bg-white/5' : 'bg-slate-50 border border-slate-100'}`}>
                     <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: '82%' }}
-                        className="h-full bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+                        className={`h-full ${isDark ? 'bg-[#D9FF00]' : 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]'}`}
                     />
                 </div>
-                <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                <div className="flex justify-between text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">
                     <span>Novice</span>
-                    <span className="text-[#0F172A] px-3 py-1 bg-blue-50 rounded-full">Level 82/100</span>
+                    <span className={`px-5 py-1.5 rounded-full ${isDark ? 'bg-[#D9FF00] text-black font-black' : 'bg-blue-50 text-[#0F172A]'}`}>Level 82/100</span>
                     <span>Expert</span>
                 </div>
             </div>
         </div>
       </div>
 
-      <div className="bg-white p-10 rounded-[3rem] shadow-2xl shadow-blue-900/5 border border-slate-100">
-        <div className="flex items-center justify-between mb-10">
-            <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">Mastery Trajectory</h2>
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-600" />
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Accuracy</span>
+      <div className={`p-12 md:p-16 rounded-[4rem] shadow-2xl border transition-all ${
+        isDark ? 'bg-[#121212] border-white/5 shadow-black/40' : 'bg-white border-slate-100 shadow-blue-900/5'
+      }`}>
+        <div className="flex items-center justify-between mb-12">
+            <h2 className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Mastery Trajectory</h2>
+            <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
+                    <div className={`w-3.5 h-3.5 rounded-full ${isDark ? 'bg-[#D9FF00]' : 'bg-blue-600'}`} />
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Accuracy %</span>
                 </div>
             </div>
         </div>
-        <div className="w-full h-[300px]">
+        <div className="w-full h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.history.map((h: any, i: number) => ({ name: i, score: (h.score/h.totalQ)*100 })).reverse()}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F8FAFC" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#222' : '#F8FAFC'} />
               <XAxis dataKey="name" hide />
               <YAxis domain={[0, 100]} hide />
               <Tooltip 
-                 contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)', padding: '16px' }}
+                 contentStyle={{ 
+                   borderRadius: '32px', 
+                   border: 'none', 
+                   backgroundColor: isDark ? '#1A1A1A' : '#fff',
+                   boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.5)', 
+                   padding: '24px' 
+                 }}
                  labelStyle={{ display: 'none' }}
               />
               <Line 
                 type="monotone" 
                 dataKey="score" 
-                stroke="#2563EB" 
-                strokeWidth={5} 
-                dot={{ r: 6, fill: '#2563EB', strokeWidth: 3, stroke: '#fff' }} 
-                activeDot={{ r: 10, strokeWidth: 0 }}
+                stroke={isDark ? '#D9FF00' : '#2563EB'} 
+                strokeWidth={6} 
+                dot={{ r: 8, fill: isDark ? '#D9FF00' : '#2563EB', strokeWidth: 4, stroke: isDark ? '#000' : '#fff' }} 
+                activeDot={{ r: 12, strokeWidth: 0 }}
               />
             </LineChart>
           </ResponsiveContainer>

@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { BookOpen, BarChart2, Calendar, MessageSquare, Award, Settings, LogOut, Home, X, Menu, Zap } from 'lucide-react';
+import { BookOpen, BarChart2, Calendar, MessageSquare, Award, Settings, LogOut, Home, X, Menu, Zap, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SidebarProps {
   activeScreen: string;
@@ -12,6 +13,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeScreen, setActiveScreen, isOpen, onClose }: SidebarProps) {
   const { logout, profile, user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -26,13 +28,29 @@ export function Sidebar({ activeScreen, setActiveScreen, isOpen, onClose }: Side
   ];
 
   const content = (
-    <div className="w-72 bg-[#0F172A] text-white flex flex-col h-full relative z-50">
-      <div className="p-8 pt-10">
-        <h1 className="text-3xl font-black text-[#2563EB] tracking-tight">Akshara-Deepa</h1>
-        <p className="text-sm font-medium text-slate-400 mt-1 opacity-80">Your SSLC Companion</p>
+    <div className={`w-80 flex flex-col h-full relative z-50 transition-colors duration-500 border-r ${
+      theme === 'dark' ? 'bg-[#050505] border-white/5 text-[#F5F5F5]' : 'bg-[#FDFDFD] text-[#1A1A1A] border-black/5'
+    }`}>
+      <div className="p-12 pb-10 space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className={`text-4xl font-black tracking-tighter leading-none ${theme === 'dark' ? 'text-[#D9FF00]' : 'text-[#0F172A]'}`}>
+              Akshara
+            </h1>
+            <p className="accent-label">Mission: SSLC 2026</p>
+          </div>
+          <button 
+            onClick={toggleTheme}
+            className={`p-4 rounded-[1.5rem] transition-all active:scale-95 border ${
+              theme === 'dark' ? 'bg-white/5 text-[#D9FF00] border-white/5' : 'bg-black/5 text-[#0F172A] border-transparent'
+            }`}
+          >
+            {theme === 'dark' ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
+          </button>
+        </div>
       </div>
 
-      <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-8 py-4 space-y-2 overflow-y-auto custom-scrollbar">
         {navItems.map((item) => (
           <button
             key={item.id}
@@ -40,36 +58,44 @@ export function Sidebar({ activeScreen, setActiveScreen, isOpen, onClose }: Side
               setActiveScreen(item.id);
               onClose();
             }}
-            className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 ${
+            className={`w-full flex items-center gap-5 px-6 py-5 rounded-[1.5rem] transition-all duration-500 group relative ${
               activeScreen === item.id 
-                ? 'bg-[#2563EB] text-white shadow-xl shadow-blue-600/20 scale-[1.02]' 
-                : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                ? (theme === 'dark' ? 'bg-white text-black shadow-2xl' : 'bg-[#0F172A] text-white shadow-2xl shadow-slate-900/40') 
+                : 'text-slate-500 hover:text-blue-500'
             }`}
           >
-            <item.icon size={22} className={activeScreen === item.id ? 'text-white' : 'text-slate-500'} />
-            <span className="font-bold text-[15px]">{item.label}</span>
+            {activeScreen === item.id && (
+              <motion.div 
+                layoutId="nav-acc"
+                className={`absolute left-0 w-1.5 h-6 rounded-r-full ${theme === 'dark' ? 'bg-lime-500' : 'bg-blue-600'}`}
+              />
+            )}
+            <item.icon size={22} strokeWidth={activeScreen === item.id ? 2.5 : 2} />
+            <span className={`text-sm tracking-tight ${activeScreen === item.id ? 'font-black' : 'font-bold'}`}>{item.label}</span>
           </button>
         ))}
       </nav>
 
-      <div className="p-6 border-t border-white/5 bg-slate-900/30">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#2563EB] flex items-center justify-center text-xl font-black shadow-lg shadow-blue-600/30">
+      <div className={`p-10 border-t ${theme === 'dark' ? 'border-white/5' : 'border-black/5 bg-slate-50/50'}`}>
+        <div className="flex items-center gap-5 mb-8">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-xl shrink-0 ${
+            theme === 'dark' ? 'bg-white/5 text-[#D9FF00]' : 'bg-[#0F172A] text-white'
+          }`}>
             {profile?.name?.[0] || 'A'}
           </div>
-          <div className="flex-1 overflow-hidden">
-            <p className="text-[15px] font-bold truncate tracking-tight">{profile?.name || 'Amruth S Sharma'}</p>
-            <p className="text-xs text-slate-500 font-medium truncate lowercase opacity-60">
-              {user?.email?.split('@')[0] || 'student'}
+          <div className="flex-1 overflow-hidden space-y-0.5">
+            <p className="text-base font-black truncate tracking-tighter leading-none">{profile?.name || 'A. Scholar'}</p>
+            <p className="accent-label !lowercase !tracking-normal !opacity-40 truncate">
+              {profile?.district || 'Karnataka Board'}
             </p>
           </div>
         </div>
         <button 
           onClick={logout}
-          className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-red-400 font-bold text-sm transition-colors"
+          className="w-full flex items-center gap-3 px-2 py-4 text-slate-500 hover:text-red-500 font-black text-xs uppercase tracking-[0.2em] transition-all group"
         >
-          <LogOut size={18} />
-          <span>Logout</span>
+          <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
+          <span>Terminate Session</span>
         </button>
       </div>
     </div>

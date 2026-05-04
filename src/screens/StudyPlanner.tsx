@@ -4,10 +4,13 @@ import { generateStudyPlan } from '../lib/gemini';
 import { useAuth } from '../contexts/AuthContext';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { Calendar, Zap, Target, BookOpen, Clock, AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Calendar, Zap, Target, BookOpen, Clock, AlertTriangle, ArrowLeft, RefreshCw, BarChart3 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export function StudyPlanner({ onBack }: { onBack: () => void }) {
   const { profile, user } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<any>(null);
 
@@ -57,117 +60,140 @@ export function StudyPlanner({ onBack }: { onBack: () => void }) {
   }, [user]);
 
   if (loading) return (
-    <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-white rounded-3xl">
-      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5 }} className="mb-6">
-        <Calendar size={64} className="text-blue-600" />
+    <div className={`h-full flex flex-col items-center justify-center p-12 text-center rounded-[3rem] ${
+      isDark ? 'bg-[#121212] border border-white/5' : 'bg-white'
+    }`}>
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5 }} className="mb-8">
+        <Calendar size={80} className={isDark ? 'text-[#D9FF00]' : 'text-blue-600'} />
       </motion.div>
-      <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Creating Your Success Strategy...</h2>
-      <p className="text-slate-500 font-medium">Calculating daily targets based on your weak areas and exam date.</p>
+      <h2 className={`text-3xl font-black mb-3 tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Creating Your Success Strategy...</h2>
+      <p className="text-slate-500 font-medium text-lg max-w-sm">Calculating daily targets based on your weak areas and exam date.</p>
     </div>
   );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-white rounded-xl transition-colors shadow-sm">
-            <ArrowLeft size={20} className="text-slate-500" />
-          </button>
-          <h1 className="text-3xl font-bold text-[#0F172A]">Study Planner</h1>
+    <div className="app-container space-y-12 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="space-y-4">
+          <h1 className={`app-heading ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Study Planner</h1>
+          <p className="app-subheading max-w-lg">AI-optimised roadmap tailored specifically to your SSLC Board timeline.</p>
         </div>
-        <button 
-          onClick={createPlan}
-          className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded-xl font-bold border border-blue-50 shadow-sm hover:bg-blue-50 transition-all text-sm"
-        >
-          <RefreshCw size={16} /> Regenerate Plan
-        </button>
-      </div>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={createPlan}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest border transition-all shadow-sm active:scale-95 ${
+              isDark ? 'bg-white/5 text-[#D9FF00] border-white/5 hover:bg-white/10' : 'bg-white text-blue-600 border-blue-50 hover:bg-blue-50'
+            }`}
+          >
+            <RefreshCw size={18} /> Regenerate Plan
+          </button>
+        </div>
+      </header>
 
       {!plan ? (
-        <div className="bg-white p-12 rounded-[2.5rem] shadow-xl border border-slate-50 text-center">
-            <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Target size={40} />
+        <div className={`p-20 rounded-[4rem] shadow-2xl border text-center transition-all ${
+          isDark ? 'bg-[#121212] border-white/5 shadow-black/40' : 'bg-white border-slate-50 shadow-blue-900/5'
+        }`}>
+            <div className={`w-28 h-28 rounded-3xl flex items-center justify-center mx-auto mb-10 shadow-inner ${
+              isDark ? 'bg-white/5 text-[#D9FF00]' : 'bg-blue-50 text-blue-600'
+            }`}>
+                <Target size={56} />
             </div>
-            <h2 className="text-2xl font-bold text-[#0F172A] mb-4">No Active Study Plan</h2>
-            <p className="text-slate-500 font-medium mb-8 max-w-md mx-auto">
-                Generate a personalised roadmap based on your current readiness and the days remaining for your SSLC boards.
+            <h2 className={`text-4xl font-black mb-6 tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>No Study Plan Detected</h2>
+            <p className="text-slate-500 font-medium mb-12 max-w-md mx-auto text-lg leading-relaxed">
+                Generate a personalised academic roadmap based on your current readiness and the days remaining for your Boards.
             </p>
             <button 
                 onClick={createPlan}
-                className="bg-[#2563EB] text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-blue-600/30 hover:bg-blue-700 transition-all"
+                className={`px-12 py-6 rounded-[2rem] font-black text-xl shadow-2xl transition-all active:scale-95 ${
+                  isDark ? 'bg-[#D9FF00] text-black shadow-lime-500/20 hover:bg-[#c2e600]' : 'bg-[#2563EB] text-white shadow-blue-600/30 hover:bg-blue-700'
+                }`}
             >
                 Generate Smart Plan
             </button>
         </div>
       ) : (
-        <div className="space-y-8">
-            <div className="bg-[#0F172A] text-white p-8 rounded-[2.5rem] relative overflow-hidden">
-                <div className="relative z-10">
-                    <p className="text-blue-400 font-bold uppercase tracking-widest text-xs mb-2">Master Strategy</p>
-                    <h2 className="text-3xl font-bold mb-4">{plan.planTitle}</h2>
-                    <p className="text-slate-400 font-medium leading-relaxed max-w-2xl">{plan.strategy}</p>
+        <div className="space-y-12">
+            <div className={`p-10 md:p-14 rounded-[3.5rem] relative overflow-hidden shadow-2xl transition-all duration-700 group ${
+              isDark ? 'bg-[#D9FF00] text-black' : 'bg-[#0F172A] text-white shadow-slate-900/40'
+            }`}>
+                <div className="relative z-10 max-w-3xl">
+                    <p className={`font-black uppercase tracking-[0.2em] text-[10px] mb-6 opacity-60`}>Mission Strategy</p>
+                    <h2 className={`text-4xl md:text-5xl font-black mb-8 tracking-tighter leading-tight`}>{plan.planTitle}</h2>
+                    <p className={`text-lg font-medium leading-relaxed opacity-90`}>{plan.strategy}</p>
                 </div>
-                <Zap className="absolute -right-8 -bottom-8 text-white/5" size={240} />
+                <Zap className={`absolute -right-16 -bottom-16 opacity-[0.03] md:opacity-[0.05] group-hover:scale-110 transition-transform duration-1000`} size={380} />
+                <div className={`absolute top-10 right-10 flex flex-col items-end`}>
+                   <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center border-4 ${
+                     isDark ? 'border-black/10 bg-black/5 text-black' : 'border-white/10 bg-white/5 text-white'
+                   }`}>
+                      <BarChart3 size={32} />
+                   </div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {plan.days.map((day: any, i: number) => (
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05, duration: 0.5 }}
                         key={day.day}
-                        className={`bg-white rounded-3xl border ${
-                            day.priority === 'RED' ? 'border-red-100 shadow-red-500/5' : 
-                            day.priority === 'AMBER' ? 'border-orange-100 shadow-orange-500/5' : 
-                            'border-slate-100'
-                        } shadow-lg p-6 flex flex-col`}
+                        className={`rounded-[3rem] border transition-all shadow-xl p-8 flex flex-col group hover:scale-[1.02] ${
+                            isDark 
+                              ? 'bg-[#121212] border-white/5' 
+                              : (day.priority === 'RED' ? 'bg-white border-red-100' : day.priority === 'AMBER' ? 'bg-white border-orange-100' : 'bg-white border-slate-100')
+                        }`}
                     >
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2">
-                                <p className={`px-2 py-1 rounded text-[10px] font-black tracking-widest ${
-                                    day.priority === 'RED' ? 'bg-red-100 text-red-600' : 
-                                    day.priority === 'AMBER' ? 'bg-orange-100 text-orange-600' : 
-                                    'bg-green-100 text-green-600'
+                        <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center gap-3">
+                                <p className={`px-4 py-1.5 rounded-2xl text-[10px] font-black tracking-[0.2em] shadow-sm ${
+                                    day.priority === 'RED' ? 'bg-red-500 text-white' : 
+                                    day.priority === 'AMBER' ? 'bg-orange-500 text-white' : 
+                                    'bg-emerald-500 text-white'
                                 }`}>DAY {day.day}</p>
-                                <span className="text-xs font-bold text-slate-400">{day.date}</span>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{day.date}</span>
                             </div>
-                            <div className={`w-2 h-2 rounded-full ${
+                            <div className={`w-3 h-3 rounded-full shadow-lg ${
                                 day.priority === 'RED' ? 'bg-red-500' : 
                                 day.priority === 'AMBER' ? 'bg-orange-500' : 
-                                'bg-green-500'
+                                'bg-emerald-500'
                             }`} />
                         </div>
 
-                        <h3 className="text-lg font-bold text-[#0F172A] mb-6 min-h-[56px] line-clamp-2">{day.theme}</h3>
+                        <h3 className={`text-2xl font-black leading-tight mb-8 min-h-[64px] tracking-tight group-hover:text-blue-600 transition-colors ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{day.theme}</h3>
 
-                        <div className="space-y-4 flex-1">
+                        <div className="space-y-6 flex-1">
                             {['morning', 'afternoon'].map(time => (
-                                <div key={time} className="space-y-1">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                                        <Clock size={10} /> {time}
+                                <div key={time} className="space-y-2 p-5 rounded-3xl bg-slate-50 border border-slate-100 transition-colors group-hover:bg-blue-50/50">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase flex items-center gap-2">
+                                        <Clock size={12} className="text-blue-600" /> {time}
                                     </p>
-                                    <p className="text-xs font-bold text-slate-800 line-clamp-1">
-                                        {day[time].subject}: {day[time].chapter}
+                                    <p className="text-sm font-bold text-slate-800 leading-tight">
+                                        <span className="text-blue-600">{day[time].subject}</span>: {day[time].chapter}
                                     </p>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="mt-8 pt-6 border-t border-slate-50">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Evening Task</p>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                                    <BookOpen size={18} />
+                        <div className={`mt-10 pt-8 border-t ${isDark ? 'border-white/5' : 'border-slate-50'}`}>
+                            <p className="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Evening Objective</p>
+                            <div className="flex items-center gap-4">
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                                  isDark ? 'bg-white/5 text-[#D9FF00]' : 'bg-blue-50 text-blue-600'
+                                }`}>
+                                    <BookOpen size={24} />
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold text-blue-600">{day.evening.task}</p>
-                                    <p className="text-[10px] font-medium text-slate-500">{day.evening.count} Questions</p>
+                                <div className="space-y-1">
+                                    <p className={`text-base font-black ${isDark ? 'text-slate-200' : 'text-blue-600'}`}>{day.evening.task}</p>
+                                    <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest leading-none">{day.evening.count} Questions</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-6 p-4 bg-slate-50/50 rounded-2xl italic text-[11px] text-slate-500 font-medium">
+                        <div className={`mt-8 p-6 rounded-3xl italic text-xs font-medium leading-relaxed transition-colors border ${
+                          isDark ? 'bg-white/5 text-slate-400 border-white/5' : 'bg-slate-50/50 text-slate-600 border-transparent'
+                        }`}>
                             "{day.motivationTip}"
                         </div>
                     </motion.div>

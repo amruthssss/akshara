@@ -61,6 +61,43 @@ export const CHAPTER_CONTENT: Record<string, any> = {
   }
 };
 
+export const BOARD_WEIGHTAGE: Record<string, Record<string, number>> = {
+  Mathematics: {
+    "Arithmetic Progressions": 6,
+    "Triangles": 8,
+    "Pair of Linear Equations in Two Variables": 8,
+    "Circles": 4,
+    "Areas Related to Circles": 3,
+    "Quadratic Equations": 6,
+    "Introduction to Trigonometry": 7,
+    "Some Applications of Trigonometry": 4,
+    "Coordinate Geometry": 5,
+    "Statistics": 6,
+    "Probability": 3,
+    "Surface Areas and Volumes": 7,
+    "Real Numbers": 4,
+    "Polynomials": 6
+  },
+  Science: {
+    "Chemical Reactions and Equations": 4,
+    "Acids, Bases and Salts": 6,
+    "Metals and Non-metals": 6,
+    "Carbon and its Compounds": 6,
+    "Periodic Classification of Elements": 4,
+    "Life Processes": 8,
+    "Control and Coordination": 5,
+    "How do Organisms Reproduce?": 5,
+    "Heredity and Evolution": 6,
+    "Light – Reflection and Refraction": 7,
+    "Human Eye and the Colourful World": 5,
+    "Electricity": 7,
+    "Magnetic Effects of Electric Current": 6,
+    "Sources of Energy": 3,
+    "Our Environment": 2,
+    "Sustainable Management of Natural Resources": 2
+  }
+};
+
 export const DISTRICTS = [
   "Bagalkot", "Ballari", "Belagavi", "Bengaluru Rural", "Bengaluru Urban",
   "Bidar", "Chamarajanagar", "Chikkaballapur", "Chikkamagaluru", "Chitradurga",
